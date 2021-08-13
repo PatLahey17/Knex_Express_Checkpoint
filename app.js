@@ -10,9 +10,9 @@ const knex = require('knex')(require('./knexfile.js')[process.env.NODE_ENV]);
 app.use(express.json());
 
 app.get('/movies', function(req, res) {
-    console.log(req.query)
+    //console.log(req.query)
     if (req.query.title === undefined) {
-        console.log('here')
+        //console.log('here')
         knex
         .select('*')
         .from('movies')
@@ -53,7 +53,37 @@ app.get('/movies/:id', function(req, res) {
         );
 })
 
+app.post('/movies', function(req, res) {
+  console.log('this is the req.body', req.body)
+  
+  knex('movies')
+    .insert({
+      title: req.body.title,
+      genre: req.body.genre,
+      release_date: req.body.release_date
+    })
+    .then(data => res.status(200).json(data))
+    .catch(err => 
+        res.status(500).json({
+            message:
+                'Somethins up'
+        }))
+})
         
+
+
+
+// app.post('/articles', async function(req, res) {
+
+//   let page = req.query.page;
+//   let limit = req.query.limit;
+
+//   let articles = await Article.findAll().paginate({page: page, limit: limit}).exec();
+
+//   res.render('index', {
+//       articles: articles
+//   });
+// });
 app.listen(PORT, () => {
   console.log(`The server is running on ${PORT}`);
 });
