@@ -1,18 +1,17 @@
-// app.js
+
 const express = require('express');
-//const { development } = require('./knexfile.js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-//console.log(process.env)
+
 const knex = require('knex')(require('./knexfile.js')[process.env.NODE_ENV]);
 
 app.use(express.json());
 
 app.get('/movies', function(req, res) {
-    //console.log(req.query)
+
     if (req.query.title === undefined) {
-        //console.log('here')
+     
         knex
         .select('*')
         .from('movies')
@@ -38,8 +37,7 @@ app.get('/movies', function(req, res) {
 });
 
 app.get('/movies/:id', function(req, res) {
-    //console.log('this is the res', res);
-    console.log('this is the req.params', req.params.id);
+    
     knex 
         .select('*')
         .from('movies')
@@ -54,7 +52,7 @@ app.get('/movies/:id', function(req, res) {
 })
 
 app.post('/movies', function(req, res) {
-  console.log('this is the req.body', req.body)
+
   
   knex('movies')
     .insert({
@@ -70,20 +68,21 @@ app.post('/movies', function(req, res) {
         }))
 })
         
+app.delete(`/movies/:id`, function (req, res){
+  
+   console.log('this is the req.params in delete', req.params.id);
+    knex('movies')
+        .where('id', req.params.id)
+        .del()
+        .then(data => res.status(200).json(data))
+        .catch(err =>
+            res.status(500).json({
+              message:
+                'The data you are looking for could not be found. Please try again'
+            })
+        );
+})
 
-
-
-// app.post('/articles', async function(req, res) {
-
-//   let page = req.query.page;
-//   let limit = req.query.limit;
-
-//   let articles = await Article.findAll().paginate({page: page, limit: limit}).exec();
-
-//   res.render('index', {
-//       articles: articles
-//   });
-// });
 app.listen(PORT, () => {
   console.log(`The server is running on ${PORT}`);
 });
