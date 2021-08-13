@@ -29,7 +29,7 @@ app.get('/movies', function(req, res) {
         .where('title', 'like', `%${req.query.title}%`)
         .then(data => res.status(200).json(data))
         .catch(err =>
-          res.status(404).json({
+          res.status(500).json({
             message:
               'The data you are looking for could not be found. Please try again'
           })
@@ -44,7 +44,7 @@ app.get('/movies/:id', function(req, res) {
         .where('id', req.params.id)
         .then(data => res.status(200).json(data))
         .catch(err =>
-            res.status(404).json({
+            res.status(500).json({
               message:
                 'The data you are looking for could not be found. Please try again'
             })
@@ -82,6 +82,40 @@ app.delete(`/movies/:id`, function (req, res){
             })
         );
 })
+
+//cookie shit
+
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
+app.post("/favMovie/:id", (req, res) => {
+  res
+    .writeHead(200, {
+      "Set-Cookie": `favId=${req.params.id}; HttpOnly`,
+      "Access-Control-Allow-Credentials": "true"
+    })
+    .send();
+});
+
+app.get("/favMovie", (req, res) => {
+  if (!req.cookies.favId) {
+    res.status(401).send();
+  } else {
+    knex 
+        .select('*')
+        .from('movies')
+        .where('id', req.cookies.favId)
+        .then(data => res.status(200).json(data))
+        .catch(err =>
+            res.status(404).json({
+              message:
+                'The data you are looking for could not be found. Please try again'
+            })
+        );
+  }
+});
+//end of cookie shit
+
 
 app.listen(PORT, () => {
   console.log(`The server is running on ${PORT}`);
